@@ -1,18 +1,11 @@
-import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
-import type { FC } from 'react';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Cats from './pages/Cats';
 import FavoriteCats from './pages/FavoriteCats';
+import Navbar from './components/Navbar.tsx';
 
 const App: FC = () => (
     <BrowserRouter>
-        <nav className="navigation">
-            <Link className="cursor-pointer" to="/">
-                Cats
-            </Link>
-            <Link className="cursor-pointer" to="/favorite-cats">
-                Favorite Cats
-            </Link>
-        </nav>
+        <Navbar />
         <Routes>
             <Route element={<Cats />} path="/" />
             <Route element={<FavoriteCats />} path="/favorite-cats" />

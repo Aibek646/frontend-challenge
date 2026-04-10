@@ -1,17 +1,19 @@
 import { createSlice } from '@reduxjs/toolkit';
+import type { Cat } from '../cats/catsSlice.ts';
 
-interface Cat {
-    id: string;
-    url: string;
-}
+const STORAGE_KEY = 'favoriteCats';
 
 interface FavoriteCatsState {
     items: Cat[];
 }
 
 const loadFromStorage = (): Cat[] => {
-    const data = localStorage.getItem('favoriteCats');
-    return data ? JSON.parse(data) : [];
+    try {
+        const data = localStorage.getItem(STORAGE_KEY);
+        return data ? JSON.parse(data) : [];
+    } catch {
+        return [];
+    }
 };
 
 const initialState: FavoriteCatsState = {
@@ -23,7 +25,7 @@ const favoriteCatsSlice = createSlice({
     initialState,
     reducers: {
         toggleFavorite(state, action) {
-            const exists = state.items.find((c) => c.id === action.payload.id);
+            const exists = state.items.some((c) => c.id === action.payload.id);
             if (exists) {
                 state.items = state.items.filter(
                     (c) => c.id !== action.payload.id
@@ -31,7 +33,6 @@ const favoriteCatsSlice = createSlice({
             } else {
                 state.items.push(action.payload);
             }
-            localStorage.setItem('favoriteCats', JSON.stringify(state.items));
         },
     },
 });

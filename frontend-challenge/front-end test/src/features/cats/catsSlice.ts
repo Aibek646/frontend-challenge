@@ -10,22 +10,23 @@ import axios from 'axios';
 
 const BASE_URL = 'https://api.thecatapi.com/v1/images/search?limit=20';
 
-interface ISingleCat {
+export interface Cat {
     id: string;
     url: string;
-    width: number;
-    height: number;
+    width?: number;
+    height?: number;
 }
 
-interface ISingleState {
-    data: ISingleCat[] | null;
+interface CatState {
+    data: Cat[];
     loading: boolean;
     error: SerializedError | null;
-    totalPages?: number;
+    page: number;
+    hasMore: boolean;
 }
 
-export const getCats = createAsyncThunk('getCats', async () => {
-    const response = await axios.get(`${BASE_URL}`, {
+export const getCats = createAsyncThunk('getCats', async (page: number) => {
+    const response = await axios.get(`${BASE_URL}&page=${page}`, {
         headers: {
             'x-api-key': import.meta.env.VITE_CAT_API_KEY,
         },
@@ -34,11 +35,12 @@ export const getCats = createAsyncThunk('getCats', async () => {
     return response.data;
 });
 
-const initialState: ISingleState = {
-    data: null,
+const initialState: CatState = {
+    data: [],
     loading: false,
     error: null,
-    totalPages: 0,
+    page: 0,
+    hasMore: true,
 };
 
 const CatsSlice = createSlice({
@@ -52,7 +54,9 @@ const CatsSlice = createSlice({
             })
             .addCase(getCats.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = action.payload;
+                state.data = [...state.data, ...action.payload];
+                state.page += 1;
+                state.hasMore = action.payload.length === 20;
             })
             .addCase(getCats.rejected, (state, action) => {
                 state.loading = false;
